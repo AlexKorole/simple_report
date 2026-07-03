@@ -1,0 +1,19 @@
+{
+  "name": "simple-report",
+  "version": "0.1.0",
+  "description": "Параметризованные SQL-отчёты с выгрузкой в CSV в фоне — для отчётов, которые могут строиться часами/сутками. Сервер на чистом Python (без сторонних зависимостей, кроме коннектора к БД), клиент на чистом JS без фреймворков.",
+  "license": "SEE LICENSE IN LICENSE",
+  "files": [
+    "client",
+    "server/server.py",
+    "server/worker.py",
+    "server/connector_loader.py",
+    "server/envfile.py",
+    "server/connectors",
+    "server/configs",
+    "server/requirements.txt",
+    "server/.env.example",
+    "LICENSE.commercial"
+  ],
+  "keywords": ["sql", "reports", "csv", "postgresql", "background-jobs"]
+}
