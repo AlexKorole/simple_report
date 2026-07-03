@@ -1,0 +1,12 @@
+{
+  "id": "sales_data",
+  "name": "Продажи (sales_data)",
+  "description": "Выгрузка по региону и диапазону дат, 1 млн строк в исходной таблице",
+  "connector": "postgresql",
+  "sql": "SELECT id, region, category, product, manager, channel, sale_date, revenue, units, sale_year, sale_quarter, sale_month_name, sale_weekday_name FROM sales_data WHERE (%(region)s IS NULL OR region = %(region)s) AND (%(date_from)s IS NULL OR sale_date >= %(date_from)s) AND (%(date_to)s IS NULL OR sale_date < %(date_to)s + interval '1 day') ORDER BY sale_date",
+  "params": [
+    {"name": "region", "view_name": "Регион", "type": "string"},
+    {"name": "date_from", "view_name": "Дата с", "type": "date"},
+    {"name": "date_to", "view_name": "Дата по", "type": "date"}
+  ]
+}

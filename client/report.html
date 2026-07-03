@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Отчёт — simple_report</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/index.html">← Мои отчёты</a>
+  </header>
+  <main>
+    <h2 id="reportName">…</h2>
+    <p id="reportDesc" class="muted"></p>
+
+    <div class="tabs">
+      <button class="btn" id="tabRunBtn">Выполнение</button>
+      <button class="btn secondary" id="tabHistoryBtn">История</button>
+    </div>
+
+    <section id="panelRun">
+      <div class="card">
+        <form id="paramsForm"></form>
+        <button class="btn" id="runBtn">Сформировать сейчас</button>
+        <div id="runMsg" class="muted" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <section id="panelHistory" style="display:none">
+      <div id="historyList">Загрузка…</div>
+    </section>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/report.js"></script>
+</body>
+</html>

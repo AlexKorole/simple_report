@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Реальные креды — в git остаётся только .env.example, не .env
+server/.env
+
+# Сгенерированные отчёты — не в git, сама папка остаётся благодаря results/.gitkeep
+server/results/*
+!server/results/.gitkeep

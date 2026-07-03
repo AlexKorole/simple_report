@@ -1,0 +1,3 @@
+# Нужно только worker.py (для коннектора connectors/postgresql.py).
+# Сам server.py — чистая стандартная библиотека, ничего ставить не требует.
+psycopg2-binary==2.9.9
