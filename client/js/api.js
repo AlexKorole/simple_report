@@ -16,6 +16,8 @@ const api = (() => {
   return {
     listReports: () => request("GET", "/api/reports"),
     getReport: (id) => request("GET", `/api/reports/${encodeURIComponent(id)}`),
+    paramOptions: (reportId, paramName) =>
+      request("GET", `/api/reports/${encodeURIComponent(reportId)}/params/${encodeURIComponent(paramName)}/options`),
     runReport: (id, params) => request("POST", `/api/reports/${encodeURIComponent(id)}/run`, { params }),
     listRuns: (id) => request("GET", `/api/reports/${encodeURIComponent(id)}/runs`),
     deleteRun: (id, file) =>

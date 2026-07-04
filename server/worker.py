@@ -54,7 +54,10 @@ def coerce_params(raw_params, param_defs):
     result = {}
     for name, value in raw_params.items():
         ptype = types_by_name.get(name, "string")
-        if value in (None, ""):
+        if ptype == "multilist":
+            # value уже список (из JSON) — пустой список = "Все" (без фильтра)
+            result[name] = list(value) if value else None
+        elif value in (None, ""):
             result[name] = None
         elif ptype == "number":
             result[name] = float(value) if ("." in str(value)) else int(value)
@@ -84,9 +87,9 @@ def run(config_path, output_dir, raw_params):
 
     rows_written = 0
     try:
-        columns, rows = connector.stream_query(config["sql"], params)
         with open(part_path, "w", newline="", encoding="utf-8-sig") as f:
             writer = csv.writer(f, delimiter=";")
+            columns, rows = connector.stream_query(config["sql"], params)
             writer.writerow(columns)
             for row in rows:
                 writer.writerow([_csv_safe_cell(v) for v in row])

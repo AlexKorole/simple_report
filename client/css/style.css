@@ -97,8 +97,12 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border);
 td.actions { white-space: nowrap; }
 td.actions a, td.actions button { margin-right: 8px; }
 
-.param-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 4px; }
-.param-row:last-child { margin-bottom: 0; }
+.params-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: start;
+}
 .param-badge {
   background: var(--border);
   color: var(--text);
@@ -106,6 +110,13 @@ td.actions a, td.actions button { margin-right: 8px; }
   border-radius: 999px;
   font-size: 0.75em;
   white-space: nowrap;
-  flex-shrink: 0;
+  justify-self: start;
 }
 .param-value { font-size: 0.85em; line-height: 1.5; color: var(--muted); }
+.param-value-group {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  line-height: 1.5;
+}

@@ -33,6 +33,7 @@ CONFIGS_DIR = os.path.join(BASE_DIR, "configs")
 RESULTS_DIR = os.path.join(BASE_DIR, "results")
 CLIENT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "client"))
 WORKER_PATH = os.path.join(BASE_DIR, "worker.py")
+PARAM_OPTIONS_PATH = os.path.join(BASE_DIR, "param_options.py")
 
 load_env_file(os.path.join(BASE_DIR, ".env"))
 MAX_WORKERS = int(os.environ.get("MAX_WORKERS", "3"))
@@ -220,12 +221,23 @@ def delete_run(report_id, filename):
         return False, "файл не найден"
     try:
         os.remove(path)
-        return True, None
     except OSError as e:
         # На Windows файл, открытый другим процессом (скачивается прямо сейчас,
         # просканирован антивирусом и т.п.), нельзя удалить — на Unix та же
         # операция тихо сработает всегда. Отдаём это как понятную ошибку клиенту.
         return False, f"файл занят, попробуйте позже ({e.strerror or e})"
+
+    # у файла результата (.csv/.error.txt/.csv.part) и sidecar-файла с параметрами
+    # общий префикс — <ts> — удаляем и его, иначе он останется сиротой навсегда
+    m = re.match(r"^(\d{8}_\d{6})", filename)
+    if m:
+        params_path = os.path.join(RESULTS_DIR, report_id, f"{m.group(1)}.params.json")
+        if os.path.exists(params_path):
+            try:
+                os.remove(params_path)
+            except OSError:
+                pass  # не критично — сам результат уже удалён успешно
+    return True, None
 
 
 # ---------------------------------------------------------------------------
@@ -259,6 +271,10 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/api/reports":
             return self._json(200, list_report_configs())
+
+        m = re.match(r"^/api/reports/([^/]+)/params/([^/]+)/options$", path)
+        if m:
+            return self._param_options(m.group(1), m.group(2))
 
         m = re.match(r"^/api/reports/([^/]+)/runs/([^/]+)/download$", path)
         if m:
@@ -304,6 +320,25 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(200, {"ok": True})
 
         return self._error(404, "не найдено")
+
+    def _param_options(self, report_id, param_name):
+        config_path = os.path.join(CONFIGS_DIR, f"{report_id}.json")
+        if not os.path.exists(config_path):
+            return self._error(404, "отчёт не найден")
+        try:
+            result = subprocess.run(
+                [sys.executable, PARAM_OPTIONS_PATH, "--config", config_path, "--param", param_name],
+                cwd=BASE_DIR, capture_output=True, text=True, timeout=15,
+            )
+        except subprocess.TimeoutExpired:
+            return self._error(504, "список значений грузится слишком долго")
+        if result.returncode != 0:
+            return self._error(500, result.stderr.strip() or "не удалось получить список значений")
+        try:
+            options = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            return self._error(500, "некорректный ответ от param_options.py")
+        return self._json(200, options)
 
     def _download(self, report_id, filename):
         if "/" in filename or "\\" in filename or ".." in filename:
