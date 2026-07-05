@@ -4,7 +4,7 @@
 // Язык берётся из CLIENT_CONFIG.LANGUAGE (config.js) — настройка разворачивания.
 const I18N = {
   ru: {
-    "app.title": "simple_report",
+    "app.title": "Простые CSV-отчёты",
     "common.loading": "Загрузка…",
     "nav.newReport": "+ Новый отчёт",
     "reports.title": "Мои отчёты",
@@ -81,7 +81,7 @@ const I18N = {
     "settings.idFormatError": "Идентификатор может содержать только латинские буквы, цифры, _ и -",
   },
   en: {
-    "app.title": "simple_report",
+    "app.title": "Simple CSV Reports",
     "common.loading": "Loading…",
     "nav.newReport": "+ New report",
     "reports.title": "My Reports",
