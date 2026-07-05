@@ -120,3 +120,14 @@ td.actions a, td.actions button { margin-right: 8px; }
   padding: 4px 8px;
   line-height: 1.5;
 }
+
+.code-input {
+  width: 100%;
+  font-family: ui-monospace, Consolas, monospace;
+  background: #0b1220;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 4px;
+}

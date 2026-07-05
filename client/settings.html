@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Настройки отчёта — simple_report</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header>
+    <a href="/index.html">← Мои отчёты</a>
+  </header>
+  <main>
+    <h2 id="pageTitle">Новый отчёт</h2>
+
+    <div class="card">
+      <label>Идентификатор (буквы/цифры/_/-, задаётся один раз при создании)
+        <input id="f_id" />
+      </label>
+      <label>Название
+        <input id="f_name" />
+      </label>
+      <label>Описание
+        <input id="f_description" />
+      </label>
+      <label>Коннектор
+        <input id="f_connector" value="postgresql" />
+      </label>
+      <label>SQL-запрос (именованные параметры в стиле %(имя)s)
+        <textarea id="f_sql" rows="6" class="code-input"></textarea>
+      </label>
+    </div>
+
+    <div class="card">
+      <h3>Колонки</h3>
+      <label>Запрос для получения списка колонок (без данных — например с LIMIT 0; можно и вызов хранимой процедуры)
+        <textarea id="f_columns_query" rows="2" class="code-input"></textarea>
+      </label>
+      <button class="btn secondary" id="loadColumnsBtn">Загрузить колонки</button>
+      <div id="columnsMsg" class="muted" style="margin-top:8px"></div>
+      <div id="columnsList" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h3>Параметры</h3>
+      <div id="paramsList"></div>
+      <button class="btn secondary" id="addParamBtn">+ Параметр</button>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn" id="saveBtn">Сохранить</button>
+      <button class="btn secondary" id="closeBtn">Закрыть</button>
+      <span id="saveMsg" class="muted"></span>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>

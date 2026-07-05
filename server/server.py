@@ -34,6 +34,8 @@ RESULTS_DIR = os.path.join(BASE_DIR, "results")
 CLIENT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "client"))
 WORKER_PATH = os.path.join(BASE_DIR, "worker.py")
 PARAM_OPTIONS_PATH = os.path.join(BASE_DIR, "param_options.py")
+REPORT_COLUMNS_PATH = os.path.join(BASE_DIR, "report_columns.py")
+ID_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 
 load_env_file(os.path.join(BASE_DIR, ".env"))
 MAX_WORKERS = int(os.environ.get("MAX_WORKERS", "3"))
@@ -159,6 +161,25 @@ def load_run_params(out_dir, ts):
             return json.load(f)
     except (OSError, json.JSONDecodeError):
         return None
+
+
+def save_report_config(report_id, cfg):
+    path = os.path.join(CONFIGS_DIR, f"{report_id}.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, ensure_ascii=False, indent=2)
+
+
+def report_config_from_body(report_id, body):
+    return {
+        "id": report_id,
+        "name": body.get("name", ""),
+        "description": body.get("description", ""),
+        "connector": body.get("connector", "postgresql"),
+        "sql": body.get("sql", ""),
+        "columns_query": body.get("columns_query") or None,
+        "column_mapping": body.get("column_mapping") or {},
+        "params": body.get("params", []),
+    }
 
 
 def list_runs(report_id):
@@ -297,6 +318,12 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = unquote(parsed.path)
 
+        if path == "/api/preview-columns":
+            return self._preview_columns()
+
+        if path == "/api/reports":
+            return self._create_report()
+
         m = re.match(r"^/api/reports/([^/]+)/run$", path)
         if m:
             report_id = m.group(1)
@@ -305,6 +332,16 @@ class Handler(BaseHTTPRequestHandler):
             body = self._read_json_body()
             request_run(report_id, body.get("params", {}))
             return self._json(200, {"ok": True})
+
+        return self._error(404, "не найдено")
+
+    def do_PUT(self):
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path)
+
+        m = re.match(r"^/api/reports/([^/]+)$", path)
+        if m:
+            return self._update_report(m.group(1))
 
         return self._error(404, "не найдено")
 
@@ -320,6 +357,46 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(200, {"ok": True})
 
         return self._error(404, "не найдено")
+
+    def _preview_columns(self):
+        body = self._read_json_body()
+        connector_name = (body.get("connector") or "").strip()
+        query = body.get("query") or ""
+        if not connector_name or not query.strip():
+            return self._error(400, "нужны connector и query")
+        try:
+            result = subprocess.run(
+                [sys.executable, REPORT_COLUMNS_PATH, "--connector", connector_name, "--query", query],
+                cwd=BASE_DIR, capture_output=True, text=True, timeout=15,
+            )
+        except subprocess.TimeoutExpired:
+            return self._error(504, "запрос колонок выполняется слишком долго")
+        if result.returncode != 0:
+            return self._error(500, result.stderr.strip() or "не удалось получить колонки")
+        try:
+            columns = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            return self._error(500, "некорректный ответ от report_columns.py")
+        return self._json(200, columns)
+
+    def _create_report(self):
+        body = self._read_json_body()
+        report_id = (body.get("id") or "").strip()
+        if not ID_RE.match(report_id):
+            return self._error(400, "идентификатор может содержать только буквы, цифры, _ и -")
+        config_path = os.path.join(CONFIGS_DIR, f"{report_id}.json")
+        if os.path.exists(config_path):
+            return self._error(409, "отчёт с таким идентификатором уже существует")
+        save_report_config(report_id, report_config_from_body(report_id, body))
+        return self._json(200, {"ok": True, "id": report_id})
+
+    def _update_report(self, report_id):
+        config_path = os.path.join(CONFIGS_DIR, f"{report_id}.json")
+        if not os.path.exists(config_path):
+            return self._error(404, "отчёт не найден")
+        body = self._read_json_body()
+        save_report_config(report_id, report_config_from_body(report_id, body))
+        return self._json(200, {"ok": True})
 
     def _param_options(self, report_id, param_name):
         config_path = os.path.join(CONFIGS_DIR, f"{report_id}.json")

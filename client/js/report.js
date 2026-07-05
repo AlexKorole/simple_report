@@ -38,6 +38,7 @@ async function init() {
   report = await api.getReport(reportId);
   document.getElementById("reportName").textContent = report.name;
   document.getElementById("reportDesc").textContent = report.description || "";
+  document.getElementById("settingsLink").href = `/settings.html?id=${encodeURIComponent(reportId)}`;
   renderParamsForm();
 
   document.getElementById("tabRunBtn").addEventListener("click", () => showTab("run"));

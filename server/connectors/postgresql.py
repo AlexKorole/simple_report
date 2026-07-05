@@ -74,6 +74,20 @@ def execute_query(query, params=None):
         conn.close()
 
 
+def get_columns(query):
+    """Список имён колонок запроса, без чтения данных — для конструктора отчёта.
+    Обычный (не именованный) курсор: .description доступен сразу после execute(),
+    в отличие от серверного курсора в stream_query. Выполняется как есть — можно
+    передать и вызов хранимой процедуры, не только SELECT."""
+    conn = _connect()
+    try:
+        cur = conn.cursor()
+        cur.execute(query)
+        return [d.name for d in cur.description] if cur.description else []
+    finally:
+        conn.close()
+
+
 def test_connection(host, port, dbname, user, password):
     conn = psycopg2.connect(host=host, port=int(port), dbname=dbname, user=user, password=password)
     conn.close()

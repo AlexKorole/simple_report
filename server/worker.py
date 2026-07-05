@@ -90,7 +90,8 @@ def run(config_path, output_dir, raw_params):
         with open(part_path, "w", newline="", encoding="utf-8-sig") as f:
             writer = csv.writer(f, delimiter=";")
             columns, rows = connector.stream_query(config["sql"], params)
-            writer.writerow(columns)
+            mapping = config.get("column_mapping") or {}
+            writer.writerow([mapping.get(c, c) for c in columns])
             for row in rows:
                 writer.writerow([_csv_safe_cell(v) for v in row])
                 rows_written += 1
