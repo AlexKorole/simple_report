@@ -13,7 +13,7 @@ server.py — единственный долгоживущий процесс. 
 
 Запуск:
     python server.py
-Слушает на 127.0.0.1:8000 (см. .env — PORT).
+Слушает на HOST:PORT из .env (по умолчанию 127.0.0.1:8000).
 """
 import json
 import os
@@ -31,17 +31,25 @@ from connector_loader import list_connectors
 from messages import msg
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIGS_DIR = os.path.join(BASE_DIR, "configs")
-RESULTS_DIR = os.path.join(BASE_DIR, "results")
+load_env_file(os.path.join(BASE_DIR, ".env"))
+
+# CONFIGS_DIR/RESULTS_DIR по умолчанию — рядом с server.py (случай "просто склонировал
+# репозиторий"). Но при установке через npm server.py оказывается внутри node_modules —
+# папку с этим принято сносить и переустанавливать не задумываясь, а вместе с ней
+# потерялись бы все отчёты и вся история выгрузок. Поэтому пути настраиваемые:
+# относительный путь в .env берётся относительно BASE_DIR, абсолютный — используется как есть.
+CONFIGS_DIR = os.path.join(BASE_DIR, os.environ.get("CONFIGS_DIR", "configs"))
+RESULTS_DIR = os.path.join(BASE_DIR, os.environ.get("RESULTS_DIR", "results"))
 CLIENT_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "client"))
 WORKER_PATH = os.path.join(BASE_DIR, "worker.py")
 PARAM_OPTIONS_PATH = os.path.join(BASE_DIR, "param_options.py")
 REPORT_COLUMNS_PATH = os.path.join(BASE_DIR, "report_columns.py")
 ID_RE = re.compile(r"^[A-Za-z0-9_-]+$")
 
-load_env_file(os.path.join(BASE_DIR, ".env"))
 MAX_WORKERS = int(os.environ.get("MAX_WORKERS", "3"))
 PORT = int(os.environ.get("PORT", "8000"))
+HOST = os.environ.get("HOST", "127.0.0.1")
+HELPER_TIMEOUT = int(os.environ.get("HELPER_TIMEOUT_SECONDS", "15"))
 
 PART_RE = re.compile(r"^(?P<ts>\d{8}_\d{6})_pid(?P<pid>\d+)\.csv\.part$")
 DONE_RE = re.compile(r"^(?P<ts>\d{8}_\d{6})\.csv$")
@@ -372,7 +380,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             result = subprocess.run(
                 [sys.executable, REPORT_COLUMNS_PATH, "--connector", connector_name, "--query", query],
-                cwd=BASE_DIR, capture_output=True, text=True, timeout=15,
+                cwd=BASE_DIR, capture_output=True, text=True, timeout=HELPER_TIMEOUT,
             )
         except subprocess.TimeoutExpired:
             return self._error(504, msg("columns_timeout"))
@@ -410,7 +418,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             result = subprocess.run(
                 [sys.executable, PARAM_OPTIONS_PATH, "--config", config_path, "--param", param_name],
-                cwd=BASE_DIR, capture_output=True, text=True, timeout=15,
+                cwd=BASE_DIR, capture_output=True, text=True, timeout=HELPER_TIMEOUT,
             )
         except subprocess.TimeoutExpired:
             return self._error(504, msg("options_timeout"))
@@ -463,8 +471,8 @@ def main():
     os.makedirs(RESULTS_DIR, exist_ok=True)
     threading.Thread(target=_reaper_loop, daemon=True).start()
 
-    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
-    print(f"[server] слушаю http://127.0.0.1:{PORT}  (MAX_WORKERS={MAX_WORKERS})")
+    server = ThreadingHTTPServer((HOST, PORT), Handler)
+    print(f"[server] слушаю http://{HOST}:{PORT}  (MAX_WORKERS={MAX_WORKERS})")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

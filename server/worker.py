@@ -88,7 +88,8 @@ def run(config_path, output_dir, raw_params):
     rows_written = 0
     try:
         with open(part_path, "w", newline="", encoding="utf-8-sig") as f:
-            writer = csv.writer(f, delimiter=";")
+            delimiter = os.environ.get("CSV_DELIMITER", ";")
+            writer = csv.writer(f, delimiter=delimiter)
             columns, rows = connector.stream_query(config["sql"], params)
             mapping = config.get("column_mapping") or {}
             writer.writerow([mapping.get(c, c) for c in columns])
