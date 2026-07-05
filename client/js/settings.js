@@ -16,6 +16,11 @@ async function init() {
   document.getElementById("closeBtn").addEventListener("click", () => {
     window.location.href = editId ? `/report.html?id=${encodeURIComponent(editId)}` : "/index.html";
   });
+  document.getElementById("f_id").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^A-Za-z0-9_-]/g, "");
+  });
+
+  await loadConnectorOptions();
 
   if (editId) {
     document.getElementById("pageTitle").textContent = "Настройки отчёта";
@@ -26,6 +31,16 @@ async function init() {
     } catch (e) {
       document.getElementById("saveMsg").textContent = e.message;
     }
+  }
+}
+
+async function loadConnectorOptions() {
+  const select = document.getElementById("f_connector");
+  try {
+    const connectors = await api.listConnectors();
+    select.innerHTML = connectors.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join("");
+  } catch (e) {
+    select.innerHTML = '<option value="postgresql">PostgreSQL</option>';
   }
 }
 
@@ -45,6 +60,8 @@ function fillForm(cfg) {
 async function loadColumns() {
   const msg = document.getElementById("columnsMsg");
   msg.textContent = "Загружаю…";
+  // сохраняем то, что уже введено в текущих полях, прежде чем перерисовать список
+  existingMapping = { ...existingMapping, ...collectColumnMapping() };
   try {
     const connector = document.getElementById("f_connector").value.trim();
     const query = document.getElementById("f_columns_query").value;
@@ -150,11 +167,17 @@ function collectParams() {
   });
 }
 
+const ID_RE = /^[A-Za-z0-9_-]+$/;
+
 async function save() {
   const msg = document.getElementById("saveMsg");
   const id = document.getElementById("f_id").value.trim();
   if (!id) {
     msg.textContent = "Укажите идентификатор";
+    return;
+  }
+  if (!ID_RE.test(id)) {
+    msg.textContent = "Идентификатор может содержать только латинские буквы, цифры, _ и -";
     return;
   }
   msg.textContent = "Сохраняю…";

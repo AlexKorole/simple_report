@@ -15,6 +15,7 @@ const api = (() => {
 
   return {
     listReports: () => request("GET", "/api/reports"),
+    listConnectors: () => request("GET", "/api/connectors"),
     getReport: (id) => request("GET", `/api/reports/${encodeURIComponent(id)}`),
     createReport: (data) => request("POST", "/api/reports", data),
     updateReport: (id, data) => request("PUT", `/api/reports/${encodeURIComponent(id)}`, data),

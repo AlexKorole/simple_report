@@ -3,11 +3,48 @@
   "name": "Продажи (sales_data)",
   "description": "Выгрузка по региону и диапазону дат, 1 млн строк в исходной таблице",
   "connector": "postgresql",
-  "sql": "SELECT id, region, category, product, manager, channel, sale_date, revenue, units, sale_year, sale_quarter, sale_month_name, sale_weekday_name FROM sales_data WHERE (%(region)s IS NULL OR region = %(region)s) AND (%(date_from)s::timestamp IS NULL OR sale_date >= %(date_from)s::timestamp) AND (%(date_to)s::timestamp IS NULL OR sale_date < %(date_to)s::timestamp + interval '1 day') AND (%(products)s::text[] IS NULL OR product = ANY(%(products)s::text[])) ORDER BY sale_date",
+  "sql": "SELECT \n   id, region, \ncategory, \nproduct, \nmanager, \nchannel, \nsale_date, \nrevenue, \nunits, \nsale_year, \nsale_quarter, \nsale_month_name, \nsale_day_num, \nsale_weekday_name,\nsale_hour \nFROM sales_data \nWHERE (%(region)s IS NULL OR region = %(region)s) \nAND (%(date_from)s::timestamp IS NULL OR sale_date >= %(date_from)s::timestamp) AND (%(date_to)s::timestamp IS NULL OR sale_date < %(date_to)s::timestamp + interval '1 day') \nAND (%(products)s::text[] IS NULL OR product = ANY(%(products)s::text[])) \nORDER BY sale_date",
+  "columns_query": "SELECT \nid, region, \ncategory, \nproduct, \nmanager, \nchannel, \nsale_date, \nrevenue, \nunits, \nsale_year, \nsale_quarter, \nsale_month_name, \nsale_day_num, \nsale_weekday_name,\nsale_hour  \nFROM sales_data limit 0",
+  "column_mapping": {
+    "id": "ид",
+    "region": "Регион",
+    "category": "Категория",
+    "product": "Продукт",
+    "manager": "Менеджер",
+    "channel": "Канал",
+    "sale_date": "Дата",
+    "revenue": "Сумма",
+    "units": "Количество",
+    "sale_year": "Год",
+    "sale_quarter": "Квартал",
+    "sale_month_name": "Месяц",
+    "sale_day_num": "День",
+    "sale_weekday_name": "День недели",
+    "sale_hour": "Час"
+  },
   "params": [
-    {"name": "region", "view_name": "Регион", "type": "string"},
-    {"name": "date_from", "view_name": "Дата с", "type": "date", "min_query": "SELECT MIN(sale_date) FROM sales_data"},
-    {"name": "date_to", "view_name": "Дата по", "type": "date", "max_query": "SELECT MAX(sale_date) FROM sales_data"},
-    {"name": "products", "view_name": "Товары", "type": "multilist", "list_query": "SELECT DISTINCT product FROM sales_data ORDER BY product"}
+    {
+      "name": "region",
+      "view_name": "Регион",
+      "type": "string"
+    },
+    {
+      "name": "date_from",
+      "view_name": "Дата с",
+      "type": "date",
+      "min_query": "SELECT MIN(sale_date) FROM sales_data"
+    },
+    {
+      "name": "date_to",
+      "view_name": "Дата по",
+      "type": "date",
+      "max_query": "SELECT MAX(sale_date) FROM sales_data"
+    },
+    {
+      "name": "products",
+      "view_name": "Товары",
+      "type": "multilist",
+      "list_query": "SELECT DISTINCT product FROM sales_data ORDER BY product"
+    }
   ]
 }

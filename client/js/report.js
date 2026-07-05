@@ -119,11 +119,15 @@ function renderParamsForm() {
     const allCheckbox = document.createElement("input");
     allCheckbox.type = "checkbox";
     allCheckbox.id = `param_${p.name}_all`;
+    allCheckbox.checked = true;
     allCheckbox.style.cssText = "width:auto; margin:0;";
+    input.disabled = true;
     allCheckbox.addEventListener("change", () => {
       input.disabled = allCheckbox.checked;
       if (allCheckbox.checked) input.value = "";
+      updateRunButtonState();
     });
+    input.addEventListener("input", updateRunButtonState);
     allLabel.appendChild(allCheckbox);
     allLabel.appendChild(document.createTextNode("Все"));
 
@@ -135,6 +139,30 @@ function renderParamsForm() {
   if (!report.params || report.params.length === 0) {
     form.innerHTML = '<p class="muted">У этого отчёта нет параметров.</p>';
   }
+  updateRunButtonState();
+}
+
+function validateParams() {
+  for (const p of report.params || []) {
+    const allChecked = document.getElementById(`param_${p.name}_all`).checked;
+    if (allChecked) continue;
+    if (p.type === "multilist") {
+      if (!multilistState[p.name] || multilistState[p.name].selected.size === 0) {
+        return `«${p.view_name || p.name}»: выберите хотя бы одно значение или отметьте «Все»`;
+      }
+    } else {
+      const el = document.getElementById(`param_${p.name}`);
+      if (!el || !el.value.trim()) {
+        return `«${p.view_name || p.name}»: заполните значение или отметьте «Все»`;
+      }
+    }
+  }
+  return null;
+}
+
+function updateRunButtonState() {
+  const error = validateParams();
+  document.getElementById("runBtn").disabled = !!error;
 }
 
 function renderMultilistParam(p) {
@@ -168,6 +196,7 @@ function renderMultilistParam(p) {
       panel.style.display = "none";
       panel.querySelectorAll(".ml-item").forEach((cb) => { cb.checked = false; });
     }
+    updateRunButtonState();
   });
 
   selectBtn.addEventListener("click", async () => {
@@ -243,6 +272,7 @@ function renderMultilistPanel(p, panel, selectBtn, allCheckbox) {
         else state.selected.delete(cb.value);
         selectBtn.textContent = `Выбрать (${state.selected.size})`;
         allCheckbox.checked = state.selected.size === 0;
+        updateRunButtonState();
       });
     });
   }
@@ -255,6 +285,7 @@ function renderMultilistPanel(p, panel, selectBtn, allCheckbox) {
     selectBtn.textContent = "Выбрать (0)";
     allCheckbox.checked = true;
     renderList();
+    updateRunButtonState();
   });
 
   panel.querySelector(".ml-close").addEventListener("click", () => {
@@ -280,6 +311,11 @@ function collectParams() {
 
 async function startRun() {
   const runMsg = document.getElementById("runMsg");
+  const validationError = validateParams();
+  if (validationError) {
+    runMsg.textContent = validationError;
+    return;
+  }
   runMsg.textContent = "Запускаю…";
 
   let runsBefore = [];

@@ -14,7 +14,7 @@
 
     <div class="card">
       <label>Идентификатор (буквы/цифры/_/-, задаётся один раз при создании)
-        <input id="f_id" />
+        <input id="f_id" pattern="[A-Za-z0-9_-]+" title="Только латинские буквы, цифры, _ и -" />
       </label>
       <label>Название
         <input id="f_name" />
@@ -23,7 +23,7 @@
         <input id="f_description" />
       </label>
       <label>Коннектор
-        <input id="f_connector" value="postgresql" />
+        <select id="f_connector"></select>
       </label>
       <label>SQL-запрос (именованные параметры в стиле %(имя)s)
         <textarea id="f_sql" rows="6" class="code-input"></textarea>

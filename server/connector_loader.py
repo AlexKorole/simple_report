@@ -43,7 +43,7 @@ def list_connectors():
             name = fname[:-3]
             try:
                 mod = load_connector(name)
-                result.append({"id": name, "name": getattr(mod, "NAME", name)})
+                result.append({"id": name, "name": getattr(mod, "NAME", "") or name})
             except Exception:
                 continue
     return result

@@ -27,6 +27,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, unquote
 
 from envfile import load_env_file
+from connector_loader import list_connectors
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIGS_DIR = os.path.join(BASE_DIR, "configs")
@@ -292,6 +293,9 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/api/reports":
             return self._json(200, list_report_configs())
+
+        if path == "/api/connectors":
+            return self._json(200, list_connectors())
 
         m = re.match(r"^/api/reports/([^/]+)/params/([^/]+)/options$", path)
         if m:
