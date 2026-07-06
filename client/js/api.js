@@ -19,6 +19,7 @@ const api = (() => {
     getReport: (id) => request("GET", `/api/reports/${encodeURIComponent(id)}`),
     createReport: (data) => request("POST", "/api/reports", data),
     updateReport: (id, data) => request("PUT", `/api/reports/${encodeURIComponent(id)}`, data),
+    deleteReport: (id) => request("DELETE", `/api/reports/${encodeURIComponent(id)}`),
     previewColumns: (connector, query) => request("POST", "/api/preview-columns", { connector, query }),
     paramOptions: (reportId, paramName) =>
       request("GET", `/api/reports/${encodeURIComponent(reportId)}/params/${encodeURIComponent(paramName)}/options`),

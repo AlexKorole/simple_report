@@ -31,7 +31,7 @@ function formatMinMaxHint(bounds) {
 
 function formatDateForHint(isoDate) {
   const [y, m, d] = String(isoDate).slice(0, 10).split("-");
-  return `${d}.${m}.${y}`;
+  return applyDateFormat(CLIENT_CONFIG.DATE_FORMAT, { YYYY: y, MM: m, DD: d });
 }
 
 async function init() {
@@ -381,7 +381,15 @@ function formatTs(ts) {
   // ts вида 20260703_215500
   const y = ts.slice(0, 4), mo = ts.slice(4, 6), d = ts.slice(6, 8);
   const h = ts.slice(9, 11), mi = ts.slice(11, 13), s = ts.slice(13, 15);
-  return `${d}.${mo}.${y} ${h}:${mi}:${s}`;
+  return applyDateFormat(CLIENT_CONFIG.DATETIME_FORMAT, { YYYY: y, MM: mo, DD: d, HH: h, mm: mi, ss: s });
+}
+
+function applyDateFormat(template, parts) {
+  let result = template;
+  for (const token of ["YYYY", "MM", "DD", "HH", "mm", "ss"]) {
+    if (token in parts) result = result.split(token).join(parts[token]);
+  }
+  return result;
 }
 
 function formatSize(bytes) {

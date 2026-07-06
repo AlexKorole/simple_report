@@ -7,6 +7,8 @@ const I18N = {
     "nav.newReport": "+ Новый отчёт",
     "reports.title": "Мои отчёты",
     "reports.empty": "Пока нет отчётов. Добавьте .json в server/configs/.",
+    "reports.delete": "Удалить",
+    "reports.deleteConfirm": "Удалить этот отчёт целиком, вместе со всей историей выгрузок? Это необратимо.",
 
     "nav.backToList": "← Мои отчёты",
     "nav.settings": "Настройки",
@@ -84,6 +86,8 @@ const I18N = {
     "nav.newReport": "+ New report",
     "reports.title": "My Reports",
     "reports.empty": "No reports yet. Add a .json file to server/configs/.",
+    "reports.delete": "Delete",
+    "reports.deleteConfirm": "Delete this report entirely, along with its whole run history? This cannot be undone.",
 
     "nav.backToList": "← My Reports",
     "nav.settings": "Settings",

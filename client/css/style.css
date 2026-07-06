@@ -54,6 +54,7 @@ main {
 }
 .report-item:hover { border-color: var(--accent); }
 .report-item .desc { color: var(--muted); font-size: 0.9em; margin-top: 4px; }
+.report-item-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 
 .btn {
   display: inline-block;

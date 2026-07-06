@@ -17,6 +17,7 @@ import json
 import os
 import queue
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -241,6 +242,18 @@ def list_runs(report_id):
     return runs
 
 
+def delete_report(report_id):
+    """Удаляет конфиг отчёта и всю папку с историей выгрузок целиком (необратимо)."""
+    config_path = os.path.join(CONFIGS_DIR, f"{report_id}.json")
+    if not os.path.exists(config_path):
+        return False
+    os.remove(config_path)
+    results_path = os.path.join(RESULTS_DIR, report_id)
+    if os.path.isdir(results_path):
+        shutil.rmtree(results_path, ignore_errors=True)
+    return True
+
+
 def delete_run(report_id, filename):
     # запрет выхода за пределы папки отчёта через имя файла
     if "/" in filename or "\\" in filename or ".." in filename:
@@ -365,6 +378,13 @@ class Handler(BaseHTTPRequestHandler):
             ok, err = delete_run(m.group(1), m.group(2))
             if not ok:
                 return self._error(409, err)
+            return self._json(200, {"ok": True})
+
+        m = re.match(r"^/api/reports/([^/]+)$", path)
+        if m:
+            ok = delete_report(m.group(1))
+            if not ok:
+                return self._error(404, msg("report_not_found"))
             return self._json(200, {"ok": True})
 
         return self._error(404, msg("not_found"))
