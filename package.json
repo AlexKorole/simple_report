@@ -1,7 +1,7 @@
 {
   "name": "no-timeout-csv",
   "version": "0.1.0",
-  "description": "Параметризованные SQL-отчёты с выгрузкой в CSV в фоне — для отчётов, которые могут строиться часами/сутками. Сервер на чистом Python (без сторонних зависимостей, кроме коннектора к БД), клиент на чистом JS без фреймворков.",
+  "description": "Parameterized SQL reports with background export to CSV, for reports that can take hours or days to build. Server in pure Python (no third-party dependencies except the DB connector), client in pure JS with no frameworks.",
   "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
