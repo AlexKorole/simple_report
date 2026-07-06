@@ -1,7 +1,7 @@
 {
   "id": "sale_data_eng",
-  "name": "Английский вариант отчета",
-  "description": "Английский вариант отчета по продажам",
+  "name": "English version of the report",
+  "description": "English version of the sales report",
   "connector": "postgresql",
   "sql": "SELECT id, region, category, product, manager, channel, sale_date, revenue, units, sale_year, sale_quarter, sale_month_name, sale_day_num, sale_weekday_name FROM sales_data_en where  (%(region)s::text[] IS NULL OR region = ANY(%(region)s::text[])) and \n(%(revenue)s IS NULL OR revenue = %(revenue)s)",
   "columns_query": "SELECT id, region, category, product, manager, channel, sale_date, revenue, units, sale_year, sale_quarter, sale_month_name, sale_day_num, sale_weekday_name FROM sales_data_en limit 0",

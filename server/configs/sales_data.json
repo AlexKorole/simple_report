@@ -1,48 +1,48 @@
 {
   "id": "sales_data",
-  "name": "Продажи (sales_data)",
-  "description": "Выгрузка по региону и диапазону дат, 1 млн строк в исходной таблице",
+  "name": "Sales (sales_data)",
+  "description": "Data export by region and date range; 1 million rows in the source table",
   "connector": "postgresql",
   "sql": "SELECT \n   id, region, \ncategory, \nproduct, \nmanager, \nchannel, \nsale_date, \nrevenue, \nunits, \nsale_year, \nsale_quarter, \nsale_month_name, \nsale_day_num, \nsale_weekday_name,\nsale_hour \nFROM sales_data \nWHERE (%(region)s IS NULL OR region = %(region)s) \nAND (%(date_from)s::timestamp IS NULL OR sale_date >= %(date_from)s::timestamp) AND (%(date_to)s::timestamp IS NULL OR sale_date < %(date_to)s::timestamp + interval '1 day') \nAND (%(products)s::text[] IS NULL OR product = ANY(%(products)s::text[])) \nORDER BY sale_date",
   "columns_query": "SELECT \nid, region, \ncategory, \nproduct, \nmanager, \nchannel, \nsale_date, \nrevenue, \nunits, \nsale_year, \nsale_quarter, \nsale_month_name, \nsale_day_num, \nsale_weekday_name,\nsale_hour  \nFROM sales_data limit 0",
   "column_mapping": {
-    "id": "ид",
-    "region": "Регион",
-    "category": "Категория",
-    "product": "Продукт",
-    "manager": "Менеджер",
-    "channel": "Канал",
-    "sale_date": "Дата",
-    "revenue": "Сумма",
-    "units": "Количество",
-    "sale_year": "Год",
-    "sale_quarter": "Квартал",
-    "sale_month_name": "Месяц",
-    "sale_day_num": "День",
-    "sale_weekday_name": "День недели",
-    "sale_hour": "Час"
+    "id": "id",
+    "region": "Region",
+    "category": "Category",
+    "product": "Product",
+    "manager": "Manager",
+    "channel": "Channel",
+    "sale_date": "Date",
+    "revenue": "Revenue",
+    "units": "Units",
+    "sale_year": "Year",
+    "sale_quarter": "Quarter",
+    "sale_month_name": "Month",
+    "sale_day_num": "Day",
+    "sale_weekday_name": "Week day",
+    "sale_hour": "Hour"
   },
   "params": [
     {
       "name": "region",
-      "view_name": "Регион",
+      "view_name": "Region",
       "type": "string"
     },
     {
       "name": "date_from",
-      "view_name": "Дата с",
+      "view_name": "Date from",
       "type": "date",
       "min_query": "SELECT MIN(sale_date) FROM sales_data"
     },
     {
       "name": "date_to",
-      "view_name": "Дата по",
+      "view_name": "Date to",
       "type": "date",
       "max_query": "SELECT MAX(sale_date) FROM sales_data"
     },
     {
       "name": "products",
-      "view_name": "Товары",
+      "view_name": "Products",
       "type": "multilist",
       "list_query": "SELECT DISTINCT product FROM sales_data ORDER BY product"
     }
