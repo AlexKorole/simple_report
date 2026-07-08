@@ -10,3 +10,6 @@ server/.env
 # Сгенерированные отчёты — не в git, сама папка остаётся благодаря results/.gitkeep
 server/results/*
 !server/results/.gitkeep
+
+.npmrc
+
