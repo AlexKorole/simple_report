@@ -4,6 +4,8 @@
 
 Live demo (with static examples, without a real database): **https://windowrepino.ru/notimeoutcsv/index.html**
 
+Video: How it works **https://youtu.be/3yV2rFHJomc**
+
 ## Screenshots
 
 | Report list | Run parameters |
