@@ -530,7 +530,9 @@ def main():
     threading.Thread(target=_reaper_loop, daemon=True).start()
 
     server = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"[server] слушаю http://{HOST}:{PORT}  (MAX_WORKERS={MAX_WORKERS})")
+    print(f"[server] listening on http://{HOST}:{PORT}  (MAX_WORKERS={MAX_WORKERS})")
+    print(f"[server] CONFIGS_DIR = {CONFIGS_DIR}")
+    print(f"[server] RESULTS_DIR = {RESULTS_DIR}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
