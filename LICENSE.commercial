@@ -6,7 +6,10 @@ between Aleksandr Korolev ("Licensor") and [COMPANY/INDIVIDUAL NAME] ("Licensee"
 1. GRANT OF LICENSE
 
    Licensor grants Licensee a non-exclusive, non-transferable, worldwide license
-   to use, integrate, and deploy the no_timeout_csv software ("Software") in commercial
+   to use, integrate, and deploy the "no-timeout-csv" software ("Software") —
+   published on npm as "no-timeout-csv" and distributed via its GitHub
+   repository, regardless of the exact name, spelling, punctuation, or
+   capitalization used in any particular distribution channel — in commercial
    products and services, subject to the terms of this Agreement.
 
 2. PERMITTED USES
